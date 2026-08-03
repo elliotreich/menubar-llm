@@ -1,0 +1,19 @@
+# Swift / Xcode build artifacts
+.build/
+*.pcm
+*.swiftmodule
+*.o
+*.d
+*.dia
+DerivedData/
+*.xcodeproj/xcuserdata/
+
+# Built app bundle (regenerated on build)
+MenubarLLM.app/
+
+# macOS
+.DS_Store
+
+# Secrets
+.env
+*.key
