@@ -8,17 +8,52 @@ macOS menubar-only LLM chat client. Lives in the status bar, supports streaming 
 - **Streaming responses**: Real-time token-by-token display
 - **Web search**: Optional Tavily integration — injects live search results into the LLM context
 - **Global hotkey**: `Cmd+Shift+Space` toggles the popover from anywhere
-- **OpenAI-compatible**: Works with any API that speaks the OpenAI chat completions format (DeepSeek, OpenAI, Anthropic via proxy, etc.)
+- **OpenAI-compatible**: Works with any API speaking the OpenAI chat completions format — Cerebras, DeepSeek, OpenAI, Groq, OpenRouter, or a local Ollama server
 - **Minimal UI**: No dock icon, no window chrome — pure menubar popover
 
 ## Defaults
 
-The app ships configured for DeepSeek:
+The app ships pointed at DeepSeek, with **no API key** — nothing works until you
+enter one in Settings:
+
 - Base URL: `https://api.deepseek.com/v1`
 - Fast model: `deepseek-v4-flash`
 - Reasoning model: `deepseek-v4-pro`
 
-All settings are configurable in-app and persist in UserDefaults.
+These are only defaults. Every field — including the base URL — is editable in
+Settings and persists to UserDefaults, so the app works with any
+OpenAI-compatible provider without rebuilding.
+
+## Recommended: Cerebras (free, very fast)
+
+If you want near-instant answers at no cost, point the app at
+[Cerebras](https://cloud.cerebras.ai). It serves `gpt-oss-120b` at roughly
+3000 tokens/sec — fast enough that responses feel immediate in a menubar popover.
+
+| Field | Value |
+|---|---|
+| Base URL | `https://api.cerebras.ai/v1` |
+| Fast Model | `gpt-oss-120b` |
+| Reasoning Model | `gpt-oss-120b` |
+
+**Free tier limits (per model):** 1M tokens/day, 2400 requests/day, 30k
+tokens/min, and **5 requests/min**. The 5 RPM ceiling is the binding constraint
+— fine for menubar-style use (a question here and there), but it makes Cerebras
+a poor fit for agentic tools that fire many requests in quick succession.
+
+A single request is also capped by the 30k tokens/min window: a prompt around
+24k tokens or larger returns `429 token_quota_exceeded`.
+
+Use `gpt-oss-120b` for both modes. Cerebras's larger `zai-glm-4.7` was
+deprecated on 2026-08-17, leaving no second model worth assigning to Reasoning.
+
+### Other providers
+
+Anything speaking the OpenAI `/chat/completions` format works — OpenAI, Groq,
+OpenRouter, Together, or a local Ollama/LM Studio server
+(`http://localhost:11434/v1`). Groq is a reasonable free alternative with a more
+forgiving 30 RPM, though its 200k tokens/day and 8k tokens/min are considerably
+tighter than Cerebras.
 
 ## API Key Configuration
 
@@ -59,6 +94,19 @@ cp .build/release/MenubarLLM MenubarLLM.app/Contents/MacOS/MenubarLLM
 ```
 
 The built binary is also deployed as `/Applications/MenubarLLM.app`.
+
+## Launch at login
+
+To start the app automatically when you log in:
+
+**System Settings** → **General** → **Login Items** → **+** → select
+`MenubarLLM.app`.
+
+Or from the terminal:
+
+```bash
+osascript -e 'tell application "System Events" to make login item at end with properties {path:"/Applications/MenubarLLM.app", hidden:false}'
+```
 
 ## Tech Stack
 
