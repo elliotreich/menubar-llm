@@ -121,3 +121,20 @@ osascript -e 'tell application "System Events" to make login item at end with pr
 - The settings view overlays the chat view (no separate window) — `.sheet()` doesn't work inside `NSPopover`
 - Global hotkey requires Accessibility permissions
 - API keys stored in UserDefaults, not the Keychain
+
+## Tests
+
+No automated test suite yet. Verification is via `swift build` and manual smoke test:
+
+```bash
+swift build -c release   # must succeed
+swift run MenubarLLM     # check menubar appears, chat streams, Tavily search
+```
+
+A future `Tests/` target could cover `LLMService` request formatting and `TavilyService` parsing without network calls.
+
+## Maintenance
+
+- **Settings:** all fields (base URL, models, API keys) are in `UserDefaults` — no keychain yet. Changing providers needs no rebuild, just edit in Settings UI.
+- **Providers:** update default base URL/models in `Sources/MenubarLLM/LLMService.swift` if defaults drift (e.g., Cerebras model deprecation already handled for `gpt-oss-120b`).
+- **Build:** `swift build -c release` produces `.build/release/MenubarLLM`. To make an app bundle, wrap the binary in `MenubarLLM.app/Contents/MacOS/` and sign if distributing beyond this Mac.
